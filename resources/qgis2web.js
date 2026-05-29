@@ -150,6 +150,77 @@ var featureOverlay = new ol.layer.Vector({
 var doHighlight = false;
 var doHover = false;
 
+
+function createPopupField(currentFeature, currentFeatureKeys, layer) {
+    var popupText = '';
+    var fotosExcluidas = ["Foto_02", "Foto_03", "Foto_04", "Foto_05", "Foto_06", "Foto_07", "Foto_08", "Foto_09"];
+    for (var i = 0; i < currentFeatureKeys.length; i++) {
+        if (currentFeatureKeys[i] != 'geometry' && currentFeatureKeys[i] != 'layerObject' && currentFeatureKeys[i] != 'idO') {
+            var popupField = '';
+            if (layer.get('fieldLabels')[currentFeatureKeys[i]] == "hidden field") {
+                continue;
+            } else if (layer.get('fieldLabels')[currentFeatureKeys[i]] == "inline label - visible with data") {
+                if (currentFeature.get(currentFeatureKeys[i]) == null) {
+                    continue;
+                }
+            }
+            if (layer.get('fieldLabels')[currentFeatureKeys[i]] == "inline label - always visible" ||
+                layer.get('fieldLabels')[currentFeatureKeys[i]] == "inline label - visible with data") {
+                
+                if (!fotosExcluidas.includes(layer.get('fieldAliases')[currentFeatureKeys[i]])) {
+                  popupField += '<span style="color: #6c757d; font-weight: 500; width: 100px; flex-shrink: 0; padding-right: 10px; box-sizing: border-box;">' + layer.get('fieldAliases')[currentFeatureKeys[i]] + '</span>'
+                }
+                popupField += '<span style="font-weight: 600; color: #212529; font-weight: 600; text-align: left; word-break: break-all; flex-grow: 1;">';
+            } else {
+            	continue;
+                //popupField += '<td colspan="2">';
+            }
+            if (layer.get('fieldLabels')[currentFeatureKeys[i]] == "header label - visible with data") {
+                if (currentFeature.get(currentFeatureKeys[i]) == null) {
+                    continue;
+                }
+            }
+            if (layer.get('fieldLabels')[currentFeatureKeys[i]] == "header label - always visible" ||
+                layer.get('fieldLabels')[currentFeatureKeys[i]] == "header label - visible with data") {
+                popupField += '<strong>' + layer.get('fieldAliases')[currentFeatureKeys[i]] + '</strong><br />';
+            }
+            if (layer.get('fieldImages')[currentFeatureKeys[i]] != "ExternalResource") {
+				popupField += (currentFeature.get(currentFeatureKeys[i]) != null ? autolinker.link(currentFeature.get(currentFeatureKeys[i]).toLocaleString()) + '</span>' : '');
+			} else {
+				var fieldValue = currentFeature.get(currentFeatureKeys[i]);
+				if (/\.(gif|jpg|jpeg|tif|tiff|png|avif|webp|svg)$/i.test(fieldValue)) {
+					popupField += (fieldValue != null ? '<img src="images/' + fieldValue.replace(/[\\\/:]/g, '_').trim() + '" /></td>' : '');
+				} else if (/\.(mp4|webm|ogg|avi|mov|flv)$/i.test(fieldValue)) {
+					popupField += (fieldValue != null ? '<video controls><source src="images/' + fieldValue.replace(/[\\\/:]/g, '_').trim() + '" type="video/mp4">Il tuo browser non supporta il tag video.</video></td>' : '');
+				} else if (/\.(mp3|wav|ogg|aac|flac)$/i.test(fieldValue)) {
+                    popupField += (fieldValue != null ? '<audio controls><source src="images/' + fieldValue.replace(/[\\\/:]/g, '_').trim() + '" type="audio/mpeg">Il tuo browser non supporta il tag audio.</audio></td>' : '');
+                } else {
+					popupField += (fieldValue != null ? autolinker.link(fieldValue.toLocaleString()) + '</td>' : '');
+				}
+			}
+			      var fieldValue2 = layer.get('fieldAliases')[currentFeatureKeys[i]];
+						// Creamos una lista con las fotos que quieres excluir
+						
+
+						// El símbolo "!" al principio significa "Si NO está en la lista..."
+						if (fotosExcluidas.includes(fieldValue2)) {
+							popupText += popupField;
+    				} 
+    				else if (fieldValue2  == "Foto_01") {
+    					popupText += '<div style="display: flex; align-items: flex-start; padding: 2px 0; border-bottom: 1px solid #f0f4f8; font-size: 11px; line-height: 1.2;">' + popupField;
+    				}
+   					else {
+   						popupText += '<div style="display: flex; align-items: flex-start; padding: 3px 0; border-bottom: 1px solid #f0f4f8; font-size: 12px; line-height: 1.2;">' + popupField + '</div>';
+   					}
+						
+        }
+    }
+    return popupText;
+}
+
+
+
+/*
 function createPopupField(currentFeature, currentFeatureKeys, layer) {
     var popupText = '';
     for (var i = 0; i < currentFeatureKeys.length; i++) {
@@ -164,9 +235,9 @@ function createPopupField(currentFeature, currentFeatureKeys, layer) {
             }
             if (layer.get('fieldLabels')[currentFeatureKeys[i]] == "inline label - always visible" ||
                 layer.get('fieldLabels')[currentFeatureKeys[i]] == "inline label - visible with data") {
-                popupField += '<th>' + layer.get('fieldAliases')[currentFeatureKeys[i]] + '</th><td>';
+                popupField += '<span style="font-weight: 400; color: #212529; text-align: right; word-break: break-all;">' + layer.get('fieldAliases')[currentFeatureKeys[i]] + '</span>';
             } else {
-                popupField += '<td colspan="2">';
+                //popupField += '<td colspan="2">';
             }
             if (layer.get('fieldLabels')[currentFeatureKeys[i]] == "header label - visible with data") {
                 if (currentFeature.get(currentFeatureKeys[i]) == null) {
@@ -175,10 +246,10 @@ function createPopupField(currentFeature, currentFeatureKeys, layer) {
             }
             if (layer.get('fieldLabels')[currentFeatureKeys[i]] == "header label - always visible" ||
                 layer.get('fieldLabels')[currentFeatureKeys[i]] == "header label - visible with data") {
-                popupField += '<strong>' + layer.get('fieldAliases')[currentFeatureKeys[i]] + '</strong><br />';
+                popupField += '<span style="color: #6c757d; font-weight: 500; padding-right: 12px; flex-shrink: 0;">' + layer.get('fieldAliases')[currentFeatureKeys[i]] + '</span>';
             }
             if (layer.get('fieldImages')[currentFeatureKeys[i]] != "ExternalResource") {
-				popupField += (currentFeature.get(currentFeatureKeys[i]) != null ? autolinker.link(currentFeature.get(currentFeatureKeys[i]).toLocaleString()) + '</td>' : '');
+				//popupField += (currentFeature.get(currentFeatureKeys[i]) != null ? autolinker.link(currentFeature.get(currentFeatureKeys[i]).toLocaleString()) + '</td>' : '');
 			} else {
 				var fieldValue = currentFeature.get(currentFeatureKeys[i]);
 				if (/\.(gif|jpg|jpeg|tif|tiff|png|avif|webp|svg)$/i.test(fieldValue)) {
@@ -191,11 +262,17 @@ function createPopupField(currentFeature, currentFeatureKeys, layer) {
 					popupField += (fieldValue != null ? autolinker.link(fieldValue.toLocaleString()) + '</td>' : '');
 				}
 			}
-            popupText += '<tr>' + popupField + '</tr>';
+            //popupText += '<tr>' + popupField + '</tr>';
+            popupText += '<span style="font-weight: 400; color: #212529; text-align: right; word-break: break-all;">' + popupField + '</span>';
         }
     }
     return popupText;
 }
+*/
+
+
+
+
 
 var highlight;
 var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
@@ -364,7 +441,10 @@ function onSingleClickFeatures(evt) {
     var currentFeature;
     var currentFeatureKeys;
     var clusteredFeatures;
-    var popupText = '<ul>';
+    //var popupText = '<ul>';
+    var popupText = '<div class="popup-wrapper" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif; min-width: 260px; max-width: 340px; color: #1a1a1a; padding: 4px;">';
+    
+    
     
     map.forEachFeatureAtPixel(pixel, function(feature, layer) {
         if (layer && feature instanceof ol.Feature && (layer.get("interactive") || layer.get("interactive") === undefined)) {
@@ -381,27 +461,29 @@ function onSingleClickFeatures(evt) {
                     for(var n = 0; n < clusteredFeatures.length; n++) {
                         currentFeature = clusteredFeatures[n];
                         currentFeatureKeys = currentFeature.getKeys();
-                        popupText += '<li><table>';
-                        popupText += '<a><b>' + layer.get('popuplayertitle') + '</b></a>';
+                        //popupText += '<li><table>';
+                        popupText += '<div class="popup-title" style="font-size: 14px; font-weight: 700; color: #0056b3; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid #eef2f7; text-transform: uppercase; letter-spacing: 0.5px;">' + layer.get('popuplayertitle') + '</div>';
                         popupText += createPopupField(currentFeature, currentFeatureKeys, layer);
-                        popupText += '</table></li>';    
+                        //popupText += '</table></li>';
                     }
                 }
             } else {
                 currentFeatureKeys = currentFeature.getKeys();
                 if (doPopup) {
-                    popupText += '<li><table>';
-                    popupText += '<a><b>' + layer.get('popuplayertitle') + '</b></a>';
+                    //popupText += '<li><table>';
+                    popupText += '<div class="popup-title" style="font-size: 14px; font-weight: 700; color: #0056b3; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid #eef2f7; text-transform: uppercase; letter-spacing: 0.5px;">' + layer.get('popuplayertitle') + '</div>';
                     popupText += createPopupField(currentFeature, currentFeatureKeys, layer);
-                    popupText += '</table>';
+                    //popupText += '</table>';
                 }
             }
         }
     });
-    if (popupText === '<ul>') {
+    if (popupText === '<div class="popup-wrapper" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif; min-width: 260px; max-width: 340px; color: #1a1a1a; padding: 4px;">') {
         popupText = '';
     } else {
-        popupText += '</ul>';
+        //popupText += '</ul>';
+        popupText += '</div>';
+        popupText += '</div>';
     }
 	
 	popupContent = popupText;
