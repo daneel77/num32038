@@ -543,6 +543,21 @@ function onSingleClickFeatures(evt) {
             currentFeature = feature;
             clusteredFeatures = feature.get("features");
             
+            
+            
+            
+            
+            
+            
+            
+            
+	
+            
+            
+            
+            
+            
+            
             if (typeof clusteredFeatures !== "undefined") {
                 if (doPopup) {
                     // Si hay agrupación (cluster), tomamos únicamente el primer elemento
@@ -588,6 +603,43 @@ function onSingleClickFeatures(evt) {
         popupText += '  <a href="' + streetViewUrl + '" target="_blank" rel="noopener noreferrer" style="display: block; padding: 5px 10px; background-color: #34a853; color: #ffffff; text-decoration: none; text-align: center; border-radius: 4px; font-weight: 600; font-size: 11px; box-shadow: 0 1px 3px rgba(0,0,0,0.15);">';
         popupText += '    🚗 Ver en Google Street View';
         popupText += '  </a>';
+        
+				// =========================================================================
+				// GENERACIÓN DE ENLACES DE CATASTRO (Sede Electrónica)
+				// =========================================================================
+				// 1. Extraemos los valores de la propiedad (feature) actual
+				var REFCAT = String(currentFeature.get('REFCAT') || '');
+
+		var CODMUNACTUAL = '32038'; 
+		
+		// 2. Verificamos que al menos exista la referencia catastral para construir los enlaces
+		if (REFCAT && REFCAT.length >= 14) {
+		    
+		    // Adaptación de Substring de VB.NET a JavaScript: .substring(inicio, fin)
+		    var del = CODMUNACTUAL.substring(0, 2);
+		    var mun = CODMUNACTUAL.substring(2, 5); // En JS, el segundo parámetro es el índice final (2 + 3 = 5)
+		    var rc1 = REFCAT.substring(0, 7);
+		    var rc2 = REFCAT.substring(7, 14);     // En JS, de la posición 7 a la 14 (7 caracteres)
+		
+		    // Construcción de las URLs oficiales
+		    var ENLACEOVCCARTO = "https://www1.sedecatastro.gob.es/Cartografia/mapa.aspx?del=" + del + "&mun=" + mun + "&refcat=" + REFCAT;
+		    var ENLACEOVCDATOS = "https://www1.sedecatastro.gob.es/CYCBienInmueble/OVCListaBienes.aspx?del=" + del + "&mun=" + mun + "&rc1=" + rc1 + "&rc2=" + rc2;
+		
+		    // 3. Inyección del HTML en el popup (Dos botones compactos y elegantes)
+		    popupText += '<div style="display: flex; gap: 4px; padding-top: 6px; margin-top: 4px; border-top: 1px dashed #ced4da; font-family: system-ui, sans-serif;">';
+		    
+		    // Botón 1: Cartografía
+		    popupText += '  <a href="' + ENLACEOVCCARTO + '" target="_blank" rel="noopener noreferrer" style="flex: 1; padding: 5px 4px; background-color: #0056b3; color: #ffffff; text-decoration: none; text-align: center; border-radius: 4px; font-weight: 600; font-size: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">';
+		    popupText += '    🗺️ Ver Cartografía';
+		    popupText += '  </a>';
+		    
+		    // Botón 2: Datos OVC
+		    popupText += '  <a href="' + ENLACEOVCDATOS + '" target="_blank" rel="noopener noreferrer" style="flex: 1; padding: 5px 4px; background-color: #ff9800; color: #ffffff; text-decoration: none; text-align: center; border-radius: 4px; font-weight: 600; font-size: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">';
+		    popupText += '    📋 Ficha Catastral';
+		    popupText += '  </a>';
+		}    
+		
+		
         popupText += '</div>';
     }
 
@@ -793,7 +845,7 @@ let measuring = false;
         }
         if (measuring) {
             /** @type {string} */
-            var helpMsg = 'Click to start drawing';
+            var helpMsg = 'Click para empezar a dibujar';
             if (sketch) {
                 var geom = (sketch.getGeometry());
                 if (geom instanceof ol.geom.Polygon) {
@@ -809,14 +861,14 @@ let measuring = false;
     
 
     var selectLabel = document.createElement("label");
-    selectLabel.innerHTML = "&nbsp;Measure:&nbsp;";
+    selectLabel.innerHTML = "&nbsp;Medición:&nbsp;";
 
     var typeSelect = document.createElement("select");
     typeSelect.id = "type";
 
     var measurementOption = [
-        { value: "LineString", description: "Length" },
-        { value: "Polygon", description: "Area" }
+        { value: "LineString", description: "Longitud" },
+        { value: "Polygon", description: "Área" }
         ];
     measurementOption.forEach(function (option) {
         var optionElement = document.createElement("option");
