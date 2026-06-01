@@ -52,35 +52,35 @@ switch (labelText.length) {
     case 1:
         console.log("La cadena tiene 1 carácter");
         // Tu código aquí
-        offsetX=10;
+        offsetX=11;
         offsetY=-3;
         break;
         
     case 2:
         console.log("La cadena tiene 2 caracteres");
         // Tu código aquí
-        offsetX=13;
+        offsetX=16;
         offsetY=-3;
         break;
         
     case 3:
         console.log("La cadena tiene 3 caracteres");
         // Tu código aquí
-        offsetX=17;
+        offsetX=22;
         offsetY=-3;
         break;
         
     case 4:
         console.log("La cadena tiene 4 caracteres");
         // Tu código aquí
-        offsetX=21;
+        offsetX=26;
         offsetY=-3;
         break;
         
     case 5:
         console.log("La cadena tiene 5 caracteres");
         // Tu código aquí
-        offsetX=25;
+        offsetX=30;
         offsetY=-3;
         break;
         
