@@ -27,18 +27,21 @@ var style_EibCcl_Numeracion_Catastro_3 = function(feature, resolution){
     }
     if (valueESTCONS == "Bueno") {
     	bufferColor = "#2ca02c";
+    	labelFill = "#ffffff"
     }
     if (valueESTCONS == "Regular") {
-    //labelFill = "#ffffff";
     bufferColor = "#ff7f00";
+    labelFill = "#ffffff"
     }
     if (valueESTCONS == "Malo") {
     	bufferColor = "#e31a1c";
+    	labelFill = "#ffffff"
     }
     if (valueESTCONS == "Ruina") {
     	bufferColor = "#984ea3";
+    	labelFill = "#ffffff"
     }
-    var bufferWidth = 5;
+    var bufferWidth = 7;
     var textAlign = "left";
     var offsetX = 0;
     var offsetY = 0;
