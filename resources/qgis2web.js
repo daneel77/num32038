@@ -428,7 +428,7 @@ function updatePopup() {
         stopMediaInPopup();
     }
 } 
-
+/*
 function onSingleClickFeatures(evt) {
     if (doHover || sketch) {
         return;
@@ -477,19 +477,126 @@ function onSingleClickFeatures(evt) {
                 }
             }
         }
-    });
     if (popupText === '<div class="popup-wrapper" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif; min-width: 260px; max-width: 340px; color: #1a1a1a; padding: 4px;">') {
         popupText = '';
     } else {
         //popupText += '</ul>';
         popupText += '</div>';
         popupText += '</div>';
-    }
-	
+        // =========================================================================
+            //  AQUÍ INTERCEPTAMOS E INYECTAMOS EL BOTÓN DE STREET VIEW
+            // =========================================================================
+            // 1. Transformamos la coordenada del clic a longitud y latitud (EPSG:4326)
+            var coord4326 = ol.proj.toLonLat(coord);
+            var lon = coord4326[0];
+            var lat = coord4326[1];
+
+            // 2. Construimos la URL de Google Maps para Street View
+            var streetViewUrl = 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=' + lat + ',' + lon;
+
+            // 3. Añadimos el código HTML del botón verde compacto
+            popupText += '<div style="padding-top: 6px; margin-top: 4px; border-top: 1px dashed #ced4da;">';
+            popupText += '  <a href="' + streetViewUrl + '" target="_blank" rel="noopener noreferrer" style="display: block; padding: 5px 10px; background-color: #34a853; color: #ffffff; text-decoration: none; text-align: center; border-radius: 4px; font-weight: 600; font-size: 11px; font-family: system-ui, sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.15);">';
+            popupText += '    🚗 Ver en Google Street View';
+            popupText += '  </a>';
+            popupText += '</div>';
+            // =========================================================================
+        
+        }
+        return true;
+    });
+
 	popupContent = popupText;
     popupCoord = coord;
     updatePopup();
 }
+*/
+
+
+
+function onSingleClickFeatures(evt) {
+    if (doHover || sketch) {
+        return;
+    }
+    if (!featuresPopupActive) {
+        featuresPopupActive = true;
+    }
+    var pixel = map.getEventPixel(evt.originalEvent);
+    var coord = evt.coordinate;
+    var currentFeature;
+    var currentFeatureKeys;
+    var clusteredFeatures;
+    
+    // Contenedor principal de la ficha técnica estilizada
+    var popupText = '<div class="popup-wrapper" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif; min-width: 150px; max-width: 400px; color: #1a1a1a; padding: 4px;">';
+    var hasFeature = false;
+    
+    map.forEachFeatureAtPixel(pixel, function(feature, layer) {
+        if (layer && feature instanceof ol.Feature && (layer.get("interactive") || layer.get("interactive") === undefined)) {
+            var doPopup = false;
+            for (var k in layer.get('fieldImages')) {
+                if (layer.get('fieldImages')[k] !== "Hidden") {
+                    doPopup = true;
+                }
+            }
+            
+            currentFeature = feature;
+            clusteredFeatures = feature.get("features");
+            
+            if (typeof clusteredFeatures !== "undefined") {
+                if (doPopup) {
+                    // Si hay agrupación (cluster), tomamos únicamente el primer elemento
+                    currentFeature = clusteredFeatures[0];
+                    currentFeatureKeys = currentFeature.getKeys();
+                    popupText += '<div class="popup-title" style="font-size: 14px; font-weight: 700; color: #0056b3; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid #eef2f7; text-transform: uppercase; letter-spacing: 0.5px;">' + layer.get('popuplayertitle') + '</div>';
+                    popupText += createPopupField(currentFeature, currentFeatureKeys, layer);
+                    hasFeature = true;
+                }
+            } else {
+                currentFeatureKeys = currentFeature.getKeys();
+                if (doPopup) {
+                    popupText += '<div class="popup-title" style="font-size: 14px; font-weight: 700; color: #0056b3; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid #eef2f7; text-transform: uppercase; letter-spacing: 0.5px;">' + layer.get('popuplayertitle') + '</div>';
+                    popupText += createPopupField(currentFeature, currentFeatureKeys, layer);
+                    hasFeature = true;
+                }
+            }
+            
+            // =========================================================================
+            // ¡ELIMINAR MULTI-CLICK! Al retornar true aquí, OpenLayers se detiene por completo
+            // en este primer elemento y no acumula más puntos en el popup.
+            // =========================================================================
+            return true;
+        }
+    });
+
+    // Control final y ensamblaje del popup (Fuera del bucle de captura)
+    if (!hasFeature) {
+        popupText = '';
+    } else {
+        // Cierre del contenedor 'popup-wrapper'
+        popupText += '</div>'; 
+        
+        // =========================================================================
+        // INYECCIÓN DEL BOTÓN DE STREET VIEW (Una sola vez, al pie de la ficha)
+        // =========================================================================
+        var coord4326 = ol.proj.toLonLat(coord);
+        var lon = coord4326[0];
+        var lat = coord4326[1];
+        var streetViewUrl = 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=' + lat + ',' + lon;
+
+        popupText += '<div style="padding-top: 6px; margin-top: 4px; border-top: 1px dashed #ced4da; font-family: system-ui, sans-serif;">';
+        popupText += '  <a href="' + streetViewUrl + '" target="_blank" rel="noopener noreferrer" style="display: block; padding: 5px 10px; background-color: #34a853; color: #ffffff; text-decoration: none; text-align: center; border-radius: 4px; font-weight: 600; font-size: 11px; box-shadow: 0 1px 3px rgba(0,0,0,0.15);">';
+        popupText += '    🚗 Ver en Google Street View';
+        popupText += '  </a>';
+        popupText += '</div>';
+    }
+
+    popupContent = popupText;
+    popupCoord = coord;
+    updatePopup();
+}
+
+
 
 function onSingleClickWMS(evt) {
     if (doHover || sketch) {
@@ -581,6 +688,65 @@ var bottomRightContainerDiv = document.getElementById('bottom-right-container')
 
 //geolocate
 
+	let isTracking = false;
+
+	const geolocateButton = document.createElement('button');
+	geolocateButton.className = 'geolocate-button fa fa-map-marker';
+	geolocateButton.title = 'Geolocalizza';
+
+	const geolocateControl = document.createElement('div');
+	geolocateControl.className = 'ol-unselectable ol-control geolocate';
+	geolocateControl.appendChild(geolocateButton);
+	map.getTargetElement().appendChild(geolocateControl);
+
+	const accuracyFeature = new ol.Feature();
+	const positionFeature = new ol.Feature({
+	  style: new ol.style.Style({
+		image: new ol.style.Circle({
+		  radius: 6,
+		  fill: new ol.style.Fill({ color: '#3399CC' }),
+		  stroke: new ol.style.Stroke({ color: '#fff', width: 2 }),
+		}),
+	  }),
+	});
+
+  const geolocateOverlay = new ol.layer.Vector({
+	  source: new ol.source.Vector({
+		features: [accuracyFeature, positionFeature],
+	  }),
+	});
+	
+	const geolocation = new ol.Geolocation({
+	  projection: map.getView().getProjection(),
+	});
+
+	geolocation.on('change:accuracyGeometry', function () {
+	  accuracyFeature.setGeometry(geolocation.getAccuracyGeometry());
+	});
+
+	geolocation.on('change:position', function () {
+	  const coords = geolocation.getPosition();
+	  positionFeature.setGeometry(coords ? new ol.geom.Point(coords) : null);
+	});
+
+	geolocation.setTracking(true);
+
+	function handleGeolocate() {
+	  if (isTracking) {
+		map.removeLayer(geolocateOverlay);
+		isTracking = false;
+	  } else if (geolocation.getTracking()) {
+		map.addLayer(geolocateOverlay);
+		const pos = geolocation.getPosition();
+		if (pos) {
+		  map.getView().setCenter(pos);
+		}
+		isTracking = true;
+	  }
+	}
+
+	geolocateButton.addEventListener('click', handleGeolocate);
+	geolocateButton.addEventListener('touchstart', handleGeolocate);
 
 
 //measurement

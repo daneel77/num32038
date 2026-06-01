@@ -426,3 +426,30 @@ td video {
     color: orangered;
 	font-size: 15px;
 }
+
+/* Estilo para el botón de geolocalización */
+.ol-geolocation {
+    background-color: rgba(255,255,255,0.9);
+    border-radius: 4px;
+    padding: 2px;
+    margin-bottom: 5px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.ol-geolocation button {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+    font-size: 16px !important;
+    font-weight: bold;
+    border: none;
+    border-radius: 2px;
+    padding: 0;
+    cursor: pointer;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.ol-geolocation button:hover {
+    background-color: #f4f4f4 !important;
+}
