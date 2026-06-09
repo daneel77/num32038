@@ -186,7 +186,7 @@ var lyr_Eib_Lugares_0 = new ol.layer.Vector({
     popuplayertitle: 'Vías/Lugares Xunqueira de Espadanedo',
     interactive: true,
     opacity: 0.60000,
-    title: 'Vías/Lugares Xunqueira de Espadanedo<br />\
+  /*  title: 'Vías/Lugares Xunqueira de Espadanedo<br />\
     <img src="styles/legend/Eib_Lugares_0_124.png" />  5 - LG / PARADELA<br />\
     <img src="styles/legend/Eib_Lugares_0_104.png" />  10 - LG / PARDECONDE<br />\
     <img src="styles/legend/Eib_Lugares_0_105.png" />  12 - AL / ABELLEIRA<br />\
@@ -238,7 +238,7 @@ var lyr_Eib_Lugares_0 = new ol.layer.Vector({
     <img src="styles/legend/Eib_Lugares_0_140.png" />  5015 - RU / RIO (O)<br />\
     <img src="styles/legend/Eib_Lugares_0_141.png" />  5016 - CR / REBOREDA (A)<br />\
     <img src="styles/legend/Eib_Lugares_0_142.png" />  5017 - CR / CERAMICAS (DAS)<br />\
-    <img src="styles/legend/Eib_Lugares_0_155.png" /> <br />'
+    <img src="styles/legend/Eib_Lugares_0_155.png" /> <br />'*/
 });
 
 var group_Eib_Trabajo = new ol.layer.Group({
@@ -250,7 +250,7 @@ var group_Eib_Trabajo = new ol.layer.Group({
 // Visibilidades iniciales de arranque (Por defecto arrancamos mostrando Estado de Conservación)
 lyr_GoogleSatellite_0.setVisible(true);
 lyr_Ortoimagen_1.setVisible(false);
-lyr_Catastro_2.setVisible(true);
+lyr_Catastro_2.setVisible(false);
 
 lyr_Bueno.setVisible(true); lyr_Regular.setVisible(true); lyr_Malo.setVisible(true); lyr_Ruina.setVisible(true); lyr_Vacio.setVisible(true);
 lyr_Tipo_N1.setVisible(false); lyr_Tipo_N2.setVisible(false); // Tipo arranca apagado para ser excluyente
