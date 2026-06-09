@@ -2034,10 +2034,10 @@ var style_Eib_Lugares_0 = function(feature, resolution){
    var valueEibCcl_Callejero_eibNomVia = feature.get("EibCcl_Callejero_eibNomVia");
    var direccion = " " + valueEibCodVia + " - " + valueEibCcl_Callejero_eibTipVia + " / " + valueEibCcl_Callejero_eibNomVia
       
-    var labelFont = "20.0px \'Arial\', sans-serif";
+    var labelFont = "bold 20.0px 'Arial', sans-serif";
     var labelFill = "#ff0000";
-    var bufferColor = "#8a8a8a";
-    var bufferWidth = 2;
+    var bufferColor = "#ffffff";
+    var bufferWidth = 5;
     var textAlign = "left";
     var offsetX = 0;
     var offsetY = 0;

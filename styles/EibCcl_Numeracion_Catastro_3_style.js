@@ -18,7 +18,7 @@ var style_EibCcl_Numeracion_Catastro_3 = function(feature, resolution){
     if (valueLETRA == null) { 
        valueLETRA = ""; 
     }
-    var labelFont = "16px, sans-serif";
+    var labelFont = "10px sans-serif";
     var labelFill = "#000000";
     var circleFill = "#4fc3f7";
     var bufferColor = "#aaaaaa";
@@ -50,53 +50,9 @@ var style_EibCcl_Numeracion_Catastro_3 = function(feature, resolution){
         labelText = String(valueNUM + valueLETRA);
     }
     
-
-switch (labelText.length) {
-    case 1:
-        console.log("La cadena tiene 1 carácter");
-        // Tu código aquí
-        offsetX=11;
-        offsetY=-3;
-        break;
-        
-    case 2:
-        console.log("La cadena tiene 2 caracteres");
-        // Tu código aquí
-        offsetX=16;
-        offsetY=-3;
-        break;
-        
-    case 3:
-        console.log("La cadena tiene 3 caracteres");
-        // Tu código aquí
-        offsetX=22;
-        offsetY=-3;
-        break;
-        
-    case 4:
-        console.log("La cadena tiene 4 caracteres");
-        // Tu código aquí
-        offsetX=26;
-        offsetY=-3;
-        break;
-        
-    case 5:
-        console.log("La cadena tiene 5 caracteres");
-        // Tu código aquí
-        offsetX=30;
-        offsetY=-3;
-        break;
-        
-    default:
-        console.log("La cadena es vacía o tiene más de 5 caracteres");
-        // Código opcional por si no cumple ninguna de las anteriores
-        break;
-}
-
-
+   
     
-    
-        var style = [ 
+/*        var style = [ 
         new ol.style.Style({
         image: new ol.style.Circle({
             radius: 10,
@@ -111,12 +67,51 @@ switch (labelText.length) {
         text: createTextStyle(feature, resolution, labelText, labelFont,
                               labelFill, placement, bufferColor, bufferWidth)
     })];;
+*/
+
+var style = [ 
+            // 1. EL CÍRCULO
+            new ol.style.Style({
+                image: new ol.style.Circle({
+                    radius: 10,
+                    displacement: [offsetX, offsetY], // Tu desplazamiento original del círculo
+                    stroke: new ol.style.Stroke({
+                        color: circleFill,
+                        width: 3.5
+                    }),
+                    fill: new ol.style.Fill({
+                        color: 'rgba(0, 0, 0, 0)' // Centro totalmente transparente para ver el texto
+                    })
+                })
+            }),
+            
+            // 2. EL TEXTO PERFECTAMENTE CENTRADO
+            new ol.style.Style({
+                text: new ol.style.Text({
+                    text: labelText,
+                    font: labelFont,
+                    fill: new ol.style.Fill({
+                        color: labelFill
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: bufferColor,
+                        width: bufferWidth
+                    }),
+                    
+                    // =========================================================
+                    // LAS 4 PROPIEDADES CLAVE PARA EL CENTRADO ABSOLUTO
+                    // =========================================================
+                    textAlign: 'center',     // Fuerza el centro horizontal del texto
+                    textBaseline: 'middle',  // Fuerza el centro vertical del texto
+                    offsetX: offsetX,        // Sigue al círculo en el eje X
+                    offsetY: -offsetY,       // Sigue al círculo en el eje Y (OpenLayers invierte el signo Y en el texto respecto a displacement)
+                    // =========================================================
+                    
+                    placement: placement
+                })
+            })
+        ];
     
-    
-    
-    /*var style = [ new ol.style.Style({
-        text: createTextStyle(feature, resolution, labelText, labelFont,
-                              labelFill, placement, bufferColor, bufferWidth)
-    })];;*/
+
     return style;
 };
