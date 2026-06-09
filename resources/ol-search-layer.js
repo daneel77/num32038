@@ -42,12 +42,169 @@ class SearchLayer extends ol.control.Control {
     const map = options.map;
     const select = new ol.interaction.Select({
       layers: [options.layer],
-      condition: ol.events.condition.never
+      condition: ol.events.condition.never,
+			
+			
+			
+			
+
+
+// =========================================================================
+      // SOLUCIÓN: Forzar el texto original enmarcado en un recuadro limpio
+      // =========================================================================
+style: function(feature, resolution) { // <-- CORREGIDO: Añadido resolution
+        var labelText = ""; 
+        var valueNUM = feature.get("END_N1_00");
+        var valueLETRA = feature.get("END_L1_00");
+        var valueTIPO = feature.get("EN1_TIPO");
+        var valueESTCONS = feature.get("ESTADOS_CONS_Estado_Conservacion");
+
+        if (valueNUM == null) { 
+           valueNUM = ""; 
+        }
+        if (valueLETRA == null) { 
+           valueLETRA = ""; 
+        }
+
+        var labelFont = "12px sans-serif"; // <-- CORREGIDO: Quitada la coma incorrecta
+        var labelFill = "#000000";
+        var circleFill = "#4fc3f7";
+        var bufferColor = "#aaaaaa";
+
+        if (valueTIPO == "00_N1") {
+            circleFill = "#0d47a1";
+        }
+
+        if (valueESTCONS == "Bueno") {
+            bufferColor = "#2ca02c";
+            labelFill = "#ffffff";
+        }
+        if (valueESTCONS == "Regular") {
+            bufferColor = "#ff7f00";
+            labelFill = "#ffffff";
+        }
+        if (valueESTCONS == "Malo") {
+            bufferColor = "#e31a1c";
+            labelFill = "#ffffff";
+        }
+        if (valueESTCONS == "Ruina") {
+            bufferColor = "#984ea3";
+            labelFill = "#ffffff";
+        }
+
+        var bufferWidth = 7;
+        var textAlign = "left";
+        var offsetX = 0;
+        var offsetY = 0;
+        var placement = 'point';
+
+        labelText = String(valueNUM + valueLETRA);
+
+
+        // =========================================================================
+        // CONSTRUCCIÓN DEL CUADRADO VÍA REGULARSHAPE (4 líneas externas, centro hueco)
+        // =========================================================================
+        var style = [ 
+            new ol.style.Style({
+                image: new ol.style.RegularShape({
+                    stroke: new ol.style.Stroke({
+                        color: circleFill, // <-- Puedes cambiar este Rojo por tu variable 'circleFill' si quieres conservar los colores por tipo
+                        width: 3.5
+                    }),
+                    points: 4,          // 4 puntos = Cuadrado
+                    radius: 16,         // Tamaño del recuadro
+                    //angle: Math.PI / 4, // Rotación de 45 grados (indispensable para que quede plano como un cuadrado y no como un rombo)
+                    displacement: [offsetX, offsetY] // Sigue fielmente el desplazamiento del número
+                })
+            }),
+            // 2. EL TEXTO PERFECTAMENTE CENTRADO
+            new ol.style.Style({
+                text: new ol.style.Text({
+                    text: labelText,
+                    font: labelFont,
+                    fill: new ol.style.Fill({
+                        color: labelFill
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: bufferColor,
+                        width: bufferWidth
+                    }),
+                    
+                    // =========================================================
+                    // LAS 4 PROPIEDADES CLAVE PARA EL CENTRADO ABSOLUTO
+                    // =========================================================
+                    textAlign: 'center',     // Fuerza el centro horizontal del texto
+                    textBaseline: 'middle',  // Fuerza el centro vertical del texto
+                    offsetX: offsetX,        // Sigue al círculo en el eje X
+                    offsetY: -offsetY,       // Sigue al círculo en el eje Y (OpenLayers invierte el signo Y en el texto respecto a displacement)
+                    // =========================================================
+                    
+                    placement: placement
+                })
+            })
+        ];;
+
+        return style;
+    }
+
+      // =========================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			
+			
+			
+			/*
+			
+			// =========================================================================
+      // ESTILO DE ENCUADRE: Aro fino rojo sin relleno central
+      // =========================================================================
+      style: function() {
+        return new ol.style.Style({
+          image: new ol.style.Circle({
+            radius: 12, // Tamaño del radio para dar margen al número en el centro
+            stroke: new ol.style.Stroke({
+              color: '#ff3333', // Rojo llamativo
+              width: 2          // Grosor de línea fino
+            }),
+            fill: new ol.style.Fill({
+              color: 'rgba(51, 136, 255, 0.25)' // Centro totalmente transparente
+            })
+          })
+        });
+      }  
+      // =========================================================================
+      */
+      
     });
     if (map) {
       map.addInteraction(select);
     }
-
+/*
     // Elementos del Control HTML
     const button = document.createElement('button');
     button.type = 'button';
@@ -87,7 +244,72 @@ class SearchLayer extends ol.control.Control {
     const element = document.createElement('div');
     element.className = 'search-layer ol-unselectable ol-control';
     element.appendChild(button);
+    element.appendChild(form); */
+    
+    
+    // Elementos del Control HTML
+    const button = document.createElement('button');
+    button.type = 'button';
+
+    const form = document.createElement('form');
+    form.setAttribute('id', 'ol-search-form');
+    const defaultFormClass = ['search-layer-input-search'];
+    if (optOptions.collapsed) {
+      defaultFormClass.push('search-layer-collapsed');
+    }
+    form.setAttribute('class', defaultFormClass.join(' '));
+
+    // Crear los 3 selectores
+    const selParroquia = document.createElement('select');
+    const selVia = document.createElement('select');
+    const selNumero = document.createElement('select');
+
+    selParroquia.innerHTML = '<option value="">Parroquia...</option>';
+    selParroquia.add(new Option("TODAS LAS PARROQUIAS", "TODAS"));
+
+    selVia.innerHTML = '<option value="">Vía...</option>';
+    selNumero.innerHTML = '<option value="">Nº...</option>';
+
+    // =========================================================================
+    // UNIFICACIÓN DE FUENTES Y ESTILOS PARA LOS DESPLEGABLES
+    // =========================================================================
+    const elementosSelect = [selParroquia, selVia, selNumero];
+    elementosSelect.forEach(sel => {
+      sel.style.fontFamily = 'inherit'; // Hereda la fuente de la página (ej: Arial, Roboto, system-ui...)
+      sel.style.fontSize = '14px';      // Tamaño unificado y legible
+      sel.style.padding = '4px';        // Un poco de espacio interno para que no queden comprimidos
+      sel.style.marginRight = '4px';    // Separación sutil entre ellos si se muestran en línea
+    });
+    // =========================================================================
+
+    form.appendChild(selParroquia);
+    form.appendChild(selVia);
+    form.appendChild(selNumero);
+    
+    // --- NUEVA BÚSQUEDA POR REFERENCIA CATASTRAL ---
+    const inputRC = document.createElement('input');
+    inputRC.type = 'text';
+    inputRC.id = 'search-rc';
+    inputRC.placeholder = 'Buscar Ref. Catastral...';
+    
+    // =========================================================================
+    // UNIFICACIÓN DE FUENTE PARA LA CAJA DE TEXTO (RC)
+    // =========================================================================
+    inputRC.style.fontFamily = 'inherit'; // Hereda la misma fuente de la página
+    inputRC.style.fontSize = '14px';      // Mismo tamaño que los selectores
+    inputRC.style.padding = '5px';        // Consistencia visual en el relleno
+    inputRC.style.boxSizing = 'border-box'; // Evita que el 100% de ancho desborde el formulario
+    inputRC.style.width = '100%';
+    inputRC.style.marginTop = '6px';
+    // =========================================================================
+    
+    form.appendChild(inputRC);
+
+    const element = document.createElement('div');
+    element.className = 'search-layer ol-unselectable ol-control';
+    element.appendChild(button);
     element.appendChild(form);
+    
 
     // Inicializar clase base de OpenLayers
     super({
